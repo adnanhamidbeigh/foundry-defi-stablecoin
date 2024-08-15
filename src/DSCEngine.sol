@@ -32,6 +32,7 @@ contract DSCEngine is ReentrancyGuard {
     error DSCEngine__TokenNotAllowed();
     error DSCEngine__TransferFailed();
     error DSCEngine__BreaksHealthFactor(uint256 healthFactor);
+    error DSCEngine__MintFailed();
     /*//////////////////////////////////////////////////////////////
                              STATE VARIABLES
     //////////////////////////////////////////////////////////////*/
@@ -118,6 +119,10 @@ contract DSCEngine is ReentrancyGuard {
     function mintDSC(uint256 _amountDscToMint) external moreThanZero(_amountDscToMint) nonReentrant {
         s_DscMinted[msg.sender] += _amountDscToMint;
         _revertIfHealthFactorIsBroken(msg.sender);
+        bool minted = i_dsc.mint(msg.sender, _amountDscToMint);
+        if (!minted) {
+            revert DSCEngine__MintFailed();
+        }
     }
 
     function reedeemCollateralForDSC() external {}
