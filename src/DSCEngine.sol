@@ -35,6 +35,7 @@ contract DSCEngine is ReentrancyGuard {
     /*//////////////////////////////////////////////////////////////
                              STATE VARIABLES
     //////////////////////////////////////////////////////////////*/
+
     uint256 private constant ADDITIONAL_FEED_PRECISION = 1e10;
     uint256 private constant PRECISION = 1e18;
     uint256 private constant LIQUIDATION_THRESHOLD = 50; // 200% overcollateralised
@@ -46,7 +47,7 @@ contract DSCEngine is ReentrancyGuard {
     mapping(address user => uint256 amountDscMinted) private s_DscMinted;
 
     address[] private s_collateralTokens;
-    
+
     DecentralisedStableCoin private immutable i_dsc;
     /*//////////////////////////////////////////////////////////////
                                  EVENTS
@@ -84,7 +85,6 @@ contract DSCEngine is ReentrancyGuard {
             s_collateralTokens.push(tokenAddresses[i]);
         }
         i_dsc = DecentralisedStableCoin(dscAddress);
-        
     }
     ///////////////////////////////
     // External Functions   //////
@@ -143,7 +143,12 @@ contract DSCEngine is ReentrancyGuard {
     /*//////////////////////////////////////////////////////////////
                      PRIVATE AND INTERNAL FUNCTIONS
     //////////////////////////////////////////////////////////////*/
-    function _getAccountInformation(address user) private view returns(uint256 _totalDscMinted, uint256 _totalCollateralValueInUsd) {
+
+    function _getAccountInformation(address user)
+        private
+        view
+        returns (uint256 _totalDscMinted, uint256 _totalCollateralValueInUsd)
+    {
         _totalDscMinted = s_DscMinted[user];
         _totalCollateralValueInUsd = getAccountCollateralValue(user);
     }
@@ -153,6 +158,7 @@ contract DSCEngine is ReentrancyGuard {
      * @return How close user is to liquidation
      *
      */
+
     function _healthFactor(address user) private view returns (uint256) {
         // total dsc minted
         // total collateral value
@@ -161,17 +167,18 @@ contract DSCEngine is ReentrancyGuard {
         uint256 collateralAdjustedForThreshold = (totalCollateralValue * LIQUIDATION_THRESHOLD) / LIQUIDATION_PRECISION;
         return (collateralAdjustedForThreshold * PRECISION) / totalDscMinted;
     }
-        // Check Collateral greater than dsc minted
+    // Check Collateral greater than dsc minted
+
     function _revertIfHealthFactorIsBroken(address user) internal view {
         uint256 userHealthFactor = _healthFactor(user);
-        if(userHealthFactor < MIN_HEALTH_FACTOR) {
+        if (userHealthFactor < MIN_HEALTH_FACTOR) {
             revert DSCEngine__BreaksHealthFactor(userHealthFactor);
         }
-
     }
     /*//////////////////////////////////////////////////////////////
                        PUBLIC EXTERNAL VIEW FUNCTIONS
     //////////////////////////////////////////////////////////////*/
+
     function getAccountCollateralValue(address user) public view returns (uint256 totalCollateralValueInUsd) {
         for (uint256 i = 0; i < s_collateralTokens.length; i++) {
             address token = s_collateralTokens[i];
@@ -180,9 +187,10 @@ contract DSCEngine is ReentrancyGuard {
         }
         return totalCollateralValueInUsd;
     }
-    function getUsdValue(address token, uint256 amount) public view returns (uint256){
+
+    function getUsdValue(address token, uint256 amount) public view returns (uint256) {
         AggregatorV3Interface priceFeed = AggregatorV3Interface(s_priceFeeds[token]);
         (, int256 price,,,) = priceFeed.latestRoundData();
-        return ((uint256(price) * ADDITIONAL_FEED_PRECISION) * amount)/ PRECISION;
+        return ((uint256(price) * ADDITIONAL_FEED_PRECISION) * amount) / PRECISION;
     }
 }
