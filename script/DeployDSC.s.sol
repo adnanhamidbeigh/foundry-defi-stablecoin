@@ -4,7 +4,7 @@ pragma solidity ^0.8.20;
 import {Script} from "forge-std/Script.sol";
 import {DecentralisedStableCoin} from "src/DecentralisedStableCoin.sol";
 import {DSCEngine} from "src/DSCEngine.sol";
-import {HelperConfig} from "script/HelperConfig.s.sol";
+import {HelperConfig} from "./HelperConfig.s.sol";
 /**
  * @notice Deploy DSC deploys DecentralisedStableCoin Contract!
  */
