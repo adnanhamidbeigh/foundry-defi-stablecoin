@@ -145,6 +145,7 @@ contract DSCEngine is ReentrancyGuard {
     function reedeemCollateralForDSC() external {}
     // 1. Check health factor is greater than 1
     // 2. Check health factor is greater than 1 after reedeeming
+
     function reedeemCollateral(address tokenCollateralAddress, uint256 _amountCollateral)
         external
         nonReentrant
@@ -155,7 +156,7 @@ contract DSCEngine is ReentrancyGuard {
         emit CollateralRedeemed(msg.sender, tokenCollateralAddress, _amountCollateral);
         bool success = IERC20(tokenCollateralAddress).transfer(msg.sender, _amountCollateral);
         if (!success) {
-            revert DSCEngine__TransferFailed();            
+            revert DSCEngine__TransferFailed();
         }
         _revertIfHealthFactorIsBroken(msg.sender);
     }
